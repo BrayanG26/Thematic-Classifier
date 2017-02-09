@@ -5,16 +5,15 @@
   "platform": "HTML",
   "version": "2.2",
   "wabVersion": "2.2",
-  "author": "Sergio ML",
+  "author": "Brayan Guerrero",
   "description": "This is a widget to classify based in some attribute from layer",
   "copyright": "",
   "license": "http://www.apache.org/licenses/LICENSE-2.0",
   "properties": {
-		"inPanel":true,
-		"hasLocale": true,
-		"hasStyle":true,
-		"hasConfig":true,
-		"hasUIFile":true,
-		"IsController":false
+    "inPanel": true,
+    "hasLocale": true,
+    "hasStyle": true,
+    "hasUIFile": true,
+    "IsController": false
   }
 }
