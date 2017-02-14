@@ -325,7 +325,7 @@ define([
 				}
 				var layer = this.layerItems.item;
 				var subLayers = layer.newSubLayers;
-				var htmlF = "<div id='divCapas' ></div>";
+				var htmlF = "<div id='divCapas'></div>";
 				var node = domConstruct.toDom(htmlF);
 				domConstruct.place(node, 'subCapas');
 				var data = this.checkScaleAndVisible(subLayers); /*getting the visible layers id*/
@@ -337,7 +337,7 @@ define([
 					id: 'thematicLayers',
 					store: store,
 					placeHolder: 'Seleccione una subcapa',
-					style: "width: 85%; height: 30px;",
+					style: "width: 85%; height: 30px; margin-bottom:5px;",
 					searchAttr: 'title'
 				}, "divCapas");
 				this.thematicLayerItems.startup();
@@ -372,7 +372,7 @@ define([
 				}
 				var layer = this.thematicLayerItems.item;
 				var subLayers = layer.newSubLayers;
-				var htmlF = "<div id='divSubCapas' ></div>";
+				var htmlF = "<div id='divSubCapas'></div>";
 				var node = domConstruct.toDom(htmlF);
 				domConstruct.place(node, 'subCapas');
 				var data = this.checkScaleAndVisible(subLayers);
