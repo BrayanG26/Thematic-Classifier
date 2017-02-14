@@ -244,13 +244,14 @@ define([
 							this._disableSelects(true);
 						}
 						this.disableReloadButton(true);
+						this.flag = true;
 						console.warn('chosen layer is not visible');
 					} else {
 						if (!this.lighter) {
 							this._disableSelects(false)
 						}
 						this.disableReloadButton(false);
-						this.flag = true;
+						
 					}
 				}
 			},
