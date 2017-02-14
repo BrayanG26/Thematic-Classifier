@@ -3,7 +3,7 @@ Thematic Classifier for WAB of Arcgis. You can render the layers that you want b
 Depending if layer is polygon, point or polyline, the symbol is changed. And depending if the field used for render is domain or not, it choose between 'ClassBreaksRenderer' or 'UniqueValueRenderer'
 
 ##### Instructions
-You can clone the repositorie in widgets folder, in your aplicattion or project.
+You can clone the repositorie in widgets folder, in your application or project.
 Then, add it with the edition mode in WAB.
 
 The widget has been thought-out to work of this way.
