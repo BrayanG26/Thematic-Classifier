@@ -58,7 +58,6 @@ define([
 		//To create a widget, you need to derive from BaseWidget.
 		return declare([BaseWidget], {
 			// Custom widget code goes here
-
 			baseClass: 'jimu-widget-classifier',
 			//this property is set by the framework when widget is loaded.
 			name: 'ThematicClassifer',
@@ -69,7 +68,7 @@ define([
 			fieldItems: null,
 			parameters: {},
 			legend: null,
-			defaultFrom: "#8BE636",
+			defaultFrom: "#8BE636", /* Colors for colorRamp algorithm*/
 			defaultTo: "#EB0E49",
 			txtBreaks: null,
 			btnSubmit: null,
@@ -108,7 +107,7 @@ define([
 			initLayers: function () {
 				console.info('initialing layers');
 				this._jimuLayerInfos.traversal(lang.hitch(this, function (layerInfo) {
-					if (layerInfo.id.match(/tematicas/i)) {
+					if (layerInfo.id.match(/tematicas/i)) { /*Filter thematic layers*/
 						if (!layerInfo.parentLayerInfo) {
 							this.operLayerInfos.push(layerInfo);
 						}
@@ -464,9 +463,6 @@ define([
 				arrayUtils.forEach(layer, function (l) {
 					if (l._visible) {
 						vSubLayers.push(l);
-						/*if (l.isInScale()) {
-	
-						}*/
 					}
 				});
 				return vSubLayers;
@@ -517,7 +513,7 @@ define([
 							label: 'OK',
 							onClick: lang.hitch(this, function () {
 								var breakCount = this.txtBreaks.get('value');
-								if (!(/\D/.test(breakCount))) {
+								if (!(/\D/.test(breakCount))) { /*regEx for ignore invalid characters*/
 									this.classBreaks(this.defaultFrom, this.defaultTo, breakCount);
 								} else {
 									this.txtBreaks.set('value', '');
