@@ -14,4 +14,4 @@ This is an example:
 ![Image of legend after classification](https://learn.arcgis.com/es/projects/where-does-healthcare-cost-the-most/lessons/GUID-092C31D0-9020-4B94-83C9-081DC7D9E19A-web.png)
 
 
-[Source](https://learn.arcgis.com/es/projects/where-does-healthcare-cost-the-most/lessons/map-medicare-costs.htm)
+[Source image](https://learn.arcgis.com/es/projects/where-does-healthcare-cost-the-most/lessons/map-medicare-costs.htm)
