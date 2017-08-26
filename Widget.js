@@ -59,7 +59,6 @@ define([
 		return declare([BaseWidget], {
 			// Custom widget code goes here
 			baseClass: 'jimu-widget-classifier',
-			//this property is set by the framework when widget is loaded.
 			name: 'ThematicClassifer',
 			operLayerInfos: [],
 			layerItems: null,
@@ -68,8 +67,10 @@ define([
 			fieldItems: null,
 			parameters: {},
 			legend: null,
-			defaultFrom: "#8BE636", /* Colors for colorRamp algorithm*/
+			/* Colors for colorRamp algorithm*/
+			defaultFrom: "#8BE636",
 			defaultTo: "#EB0E49",
+			/* --- *** --- */
 			txtBreaks: null,
 			btnSubmit: null,
 			_jimuLayerInfos: null,
@@ -81,12 +82,11 @@ define([
 			extentHandler: null,
 			lighter: false,
 			btnReload: null,
-			flag:false,
-			//methods to communication with app container:
+			flag: false,
 
+			//methods to communication with app container:
 			postCreate: function () {
 				this.inherited(arguments);
-				//console.log('postCreate');
 			},
 
 			startup: function () {
@@ -104,166 +104,38 @@ define([
 			onClose: function () {
 				console.log('onClose');
 			},
+
+			/* from now on, methods below was developed by programmer */
+
 			initLayers: function () {
 				console.info('initialing layers');
 				this._jimuLayerInfos.traversal(lang.hitch(this, function (layerInfo) {
-					if (layerInfo.id.match(/tematicas/i)) { /*Filter thematic layers*/
+					if (layerInfo.id.match(/tematicas/i)) { /*Regex for filter thematic layers*/
 						if (!layerInfo.parentLayerInfo) {
 							this.operLayerInfos.push(layerInfo);
 						}
 					}
 				}));
-				this.resetLayerRendererAndLegend();
+				this.resetLayerRendererAndLegend(); //reload legend
 				this.createLayerSelect(this.operLayerInfos);
 				this.operLayerInfos = [];
 				if (this.legend) {
 					this.showHideLegend(false);
 				}
 			},
+
 			_bindEvents: function () {
+				/* Listen if some layer is en/disabled */
 				this.own(on(this._jimuLayerInfos,
 					'layerInfosIsShowInMapChanged',
 					lang.hitch(this, 'refreshLayers')));
 
+				/* Listen every zoom on map */
 				this.own(on(this.map,
 					'zoom-end',
 					lang.hitch(this, 'refreshAfterZoom')));
 			},
 
-			refreshLayers: function () {
-				console.info('layerInfosIsShowInMapChanged event');
-				var validate = false;
-				this._jimuLayerInfos.traversal(lang.hitch(this, function (layerInfo) {
-					// verify if layer in renderer has been turned off
-					// and layer that has been turned off before apply the render
-					if (this.activeLayer.parentLayer && this.activeLayer.firstLevel && this.activeLayer.secondLevel) {
-						if (this.activeLayer.parentLayer.id == layerInfo.id || this.activeLayer.firstLevel.id == layerInfo.id || this.activeLayer.secondLevel.id == layerInfo.id) {
-							if (!layerInfo._visible) {
-								validate = true;
-								/*this.activeLayer.parentLayer = {};
-								this.activeLayer.firstLevel = {};
-								this.activeLayer.secondLevel = {};*/
-							}
-						}
-					} else {
-						validate = true;
-					}
-
-				}));
-				if (this.btnChanges != null) {
-					this.btnChanges.destroy();
-					this.btnChanges = null;
-				}
-				this.createReloadButton(validate);
-			},
-			createReloadButton: function (validate) {
-				if (validate) {
-					console.info('Init layers...');
-					this.initLayers();
-				} else {
-					if (this.btnReload) {
-						this.btnReload.destroy();
-						this.btnReload = null;
-					}
-					htmlF = "<button id='btnChanges' type='button'></button>";
-					var node = domConstruct.toDom(htmlF);
-					domConstruct.place(node, 'cambios');
-					this.lighter = true;
-					this._disableSelects(true);
-					this.btnChanges = new Button({
-						label: 'Recargar',
-						onClick: lang.hitch(this, function () {
-							console.info('Reloading ...');
-							this.initLayers();
-							this.btnChanges.destroy();
-							this.btnChanges = null;
-							this.lighter = false;
-							this.flag = false;
-						})
-					}, 'btnChanges');
-					this.btnChanges.startup();
-					this.disableReloadButton(this.flag);
-				}
-				
-
-			},
-			_disableSelects: function (value) {
-				/*disable all selects if all has been created*/
-				var state = 'disabled';
-				if (this.layerItems) {
-					this.layerItems.set(state, value);
-					if (this.thematicLayerItems) {
-						this.thematicLayerItems.set(state, value);
-						if (this.subLayerItems) {
-							this.subLayerItems.set(state, value);
-							if (this.fieldItems) {
-								this.fieldItems.set(state, value);
-								if (this.txtBreaks && this.btnSubmit) {
-									this.txtBreaks.set(state, value);
-									this.btnSubmit.set(state, value);
-								}
-								if(this.btnReload){
-									this.btnReload.set(state,value);
-								}
-							}
-						}
-					}
-				}
-			},
-			_destroyWidgets: function () {
-				if (this.layerItems) {
-					this.layerItems.set(state, value);
-					if (this.thematicLayerItems) {
-						this.thematicLayerItems.set(state, value);
-						if (this.subLayerItems) {
-							this.subLayerItems.set(state, value);
-							if (this.fieldItems) {
-								this.fieldItems.set(state, value);
-								if (this.txtBreaks && this.btnSubmit) {
-									this.txtBreaks.set(state, value);
-									this.btnSubmit.set(state, value);
-								}
-							}
-						}
-					}
-				}
-			},
-			disableReloadButton:function(value){
-				var state = 'disabled';
-				if (this.btnChanges) {
-					this.btnChanges.set(state, value);
-				}
-			},
-			refreshAfterZoom: function () {
-				console.info('zoom-end');
-				if (this.minScale) {
-					console.warn(this.minScale);
-					if (this.map.getScale() > this.minScale) {
-						if (!this.lighter) {
-							this._disableSelects(true);
-						}
-						this.disableReloadButton(true);
-						this.flag = true;
-						console.warn('chosen layer is not visible');
-					} else {
-						if (!this.lighter) {
-							this._disableSelects(false)
-						}
-						this.disableReloadButton(false);
-						
-					}
-				}
-			},
-			resetLayerRendererAndLegend: function () {
-				/*remove current visualization from chosen layer once applied a renderer*/
-				if (this.parameters.layer) {
-					var optionsArray = [];
-					optionsArray[this.parameters.idPos] = null;
-					this.parameters.layer.setLayerDrawingOptions(optionsArray);
-					this.parameters.layer.show();
-					console.log('layer renderer reset successfully');
-				}
-			},
 			createLayerSelect: function (operLayerInfos) {
 				if (this.layerItems != null) {
 					this.layerItems.destroy();
@@ -303,6 +175,146 @@ define([
 				}, "divTematicas");
 				this.layerItems.on('change', lang.hitch(this, this.getThematicLayers));
 			},
+
+			refreshLayers: function () {
+				console.info('layerInfosIsShowInMapChanged event');
+				var validate = false;
+				this._jimuLayerInfos.traversal(lang.hitch(this, function (layerInfo) {
+					// verify if layer in renderer has been turned off
+					// and layer that has been turned off before apply the render
+					if (this.activeLayer.parentLayer && this.activeLayer.firstLevel && this.activeLayer.secondLevel) {
+						if (this.activeLayer.parentLayer.id == layerInfo.id || this.activeLayer.firstLevel.id == layerInfo.id || this.activeLayer.secondLevel.id == layerInfo.id) {
+							if (!layerInfo._visible) {
+								validate = true;
+							}
+						}
+					} else {
+						validate = true;
+					}
+
+				}));
+				if (this.btnChanges != null) {
+					this.btnChanges.destroy();
+					this.btnChanges = null;
+				}
+				this.createReloadButton(validate);
+			},
+			createReloadButton: function (validate) {
+				if (validate) {
+					/* if some value (ListBox) is modified, then create reload button */
+					console.info('Init layers...');
+					this.initLayers();
+				} else {
+					if (this.btnReload) {
+						this.btnReload.destroy();
+						this.btnReload = null;
+					}
+					/* This part, construct a html element */
+					htmlF = "<button id='btnChanges' type='button'></button>";
+					var node = domConstruct.toDom(htmlF);
+					domConstruct.place(node, 'cambios');
+					/* --- *** --- */
+					this.lighter = true;
+					this._disableSelects(true);
+					this.btnChanges = new Button({
+						label: 'Recargar',
+						onClick: lang.hitch(this, function () {
+							console.info('Reloading ...');
+							this.initLayers();
+							this.btnChanges.destroy();
+							this.btnChanges = null;
+							this.lighter = false;
+							this.flag = false;
+						})
+					}, 'btnChanges');
+					this.btnChanges.startup();
+					this.disableReloadButton(this.flag);
+				}
+
+
+			},
+			_disableSelects: function (value) {
+				/*disable all selects if all has been created*/
+				var state = 'disabled';
+				if (this.layerItems) {
+					this.layerItems.set(state, value);
+					if (this.thematicLayerItems) {
+						this.thematicLayerItems.set(state, value);
+						if (this.subLayerItems) {
+							this.subLayerItems.set(state, value);
+							if (this.fieldItems) {
+								this.fieldItems.set(state, value);
+								if (this.txtBreaks && this.btnSubmit) {
+									this.txtBreaks.set(state, value);
+									this.btnSubmit.set(state, value);
+								}
+								if (this.btnReload) {
+									this.btnReload.set(state, value);
+								}
+							}
+						}
+					}
+				}
+			},
+
+			_destroyWidgets: function () { // For correctly reload widget, is necessary destroy all and create it again 
+				if (this.layerItems) {
+					this.layerItems.set(state, value);
+					if (this.thematicLayerItems) {
+						this.thematicLayerItems.set(state, value);
+						if (this.subLayerItems) {
+							this.subLayerItems.set(state, value);
+							if (this.fieldItems) {
+								this.fieldItems.set(state, value);
+								if (this.txtBreaks && this.btnSubmit) {
+									this.txtBreaks.set(state, value);
+									this.btnSubmit.set(state, value);
+								}
+							}
+						}
+					}
+				}
+			},
+
+			disableReloadButton: function (value) {
+				var state = 'disabled';
+				if (this.btnChanges) {
+					this.btnChanges.set(state, value);
+				}
+			},
+
+			refreshAfterZoom: function () {
+				console.info('zoom-end');
+				if (this.minScale) {
+					console.warn(this.minScale);
+					if (this.map.getScale() > this.minScale) {
+						if (!this.lighter) {
+							this._disableSelects(true);
+						}
+						this.disableReloadButton(true);
+						this.flag = true;
+						console.warn('chosen layer is not visible');
+					} else {
+						if (!this.lighter) {
+							this._disableSelects(false)
+						}
+						this.disableReloadButton(false);
+
+					}
+				}
+			},
+
+			resetLayerRendererAndLegend: function () {
+				/*remove current visualization from chosen layer once applied a renderer*/
+				if (this.parameters.layer) {
+					var optionsArray = [];
+					optionsArray[this.parameters.idPos] = null;
+					this.parameters.layer.setLayerDrawingOptions(optionsArray);
+					this.parameters.layer.show();
+					console.log('layer renderer reset successfully');
+				}
+			},
+
 			getThematicLayers: function () {
 				if (this.thematicLayerItems != null) {
 					this.thematicLayerItems.destroy();
@@ -342,7 +354,8 @@ define([
 				this.thematicLayerItems.startup();
 				this.thematicLayerItems.on('change', lang.hitch(this, this.getSubLayers));
 			},
-			getLayerVisibleId: function (subLayerVisible, i) {
+
+			getLayerVisibleId: function (subLayerVisible, i) { // Get layers id from layers visible in the map service
 				console.info('into getLayerVisibleId');
 				var hideIds = [];
 				console.log(subLayerVisible);
@@ -354,6 +367,7 @@ define([
 				});
 				this.parameters.idHideLayers = hideIds;
 			},
+
 			getSubLayers: function () {
 				if (this.subLayerItems != null) {
 					this.subLayerItems.destroy();
@@ -415,6 +429,8 @@ define([
 				var dymanicLayerInfos = this.layerItems.item._jsapiLayerInfos;
 				this._getMinScale(dymanicLayerInfos, pos);
 			},
+
+			/* This method make a request from map service and return some properties like fields geometryType... */
 			getResults: function (url) {
 				var request = esriRequest({
 					url: url,
@@ -426,23 +442,23 @@ define([
 				request.then(lang.hitch(this, function (resp) {
 					if (resp.fields) {
 						this.parameters.geometryType = resp.geometryType;
-						this.getFields(resp.fields);
+						this.filterFields(resp.fields);
 					}
 				}), function (err) {
 					console.log("failed to get field names: ", err);
 				});
 			},
 
-			getFields: function (fields) {
+			filterFields: function (fields) {
 				// filter the fields
-				var filterFields = [];
+				var filteredFields = [];
 				arrayUtils.forEach(fields, function (field) {
 					if ((field.type === 'esriFieldTypeString' && field.domain) || (field.type === 'esriFieldTypeInteger' && field.alias.match(/identificador/i) == null) || (field.type === 'esriFieldTypeDouble' && field.name !== 'shape.STLength()')) {
-						filterFields.push(field);
+						filteredFields.push(field);
 					}
 				});
 				var store = new Memory({
-					data: filterFields
+					data: filteredFields
 				});
 				if (this.fieldItems) {
 					this.fieldItems.set('store', store);
@@ -458,6 +474,7 @@ define([
 				this.fieldItems.startup();
 				this.fieldItems.on('change', lang.hitch(this, this.setParameters));
 			},
+
 			checkScaleAndVisible: function (layer) {
 				var vSubLayers = [];
 				arrayUtils.forEach(layer, function (l) {
@@ -467,6 +484,7 @@ define([
 				});
 				return vSubLayers;
 			},
+
 			_getMinScale: function (dynamicLayerInfos, id) {
 				arrayUtils.forEach(dynamicLayerInfos, lang.hitch(this, function (obj) {
 					if (obj.id == id) {
@@ -475,6 +493,7 @@ define([
 				}));
 
 			},
+
 			setParameters: function (value) {
 				if (this.txtBreaks != null && this.btnSubmit != null) {
 					this.txtBreaks.destroy();
@@ -491,6 +510,7 @@ define([
 				this.parameters.field = this.fieldItems.item.name;
 				this.chooseRender();
 			},
+
 			chooseRender: function () {
 				if (this.parameters.isDomain) {
 					this.uniqueValRender();
@@ -525,6 +545,7 @@ define([
 					}
 				}
 			},
+
 			classBreaks: function (c1, c2, breakCount) {
 				var classDef = new ClassBreaksDefinition();
 				classDef.classificationField = this.parameters.field;
@@ -545,6 +566,7 @@ define([
 				var generateRenderer = new GenerateRendererTask(this.parameters.url);
 				generateRenderer.execute(params, lang.hitch(this, this.applyRenderer), this.errorHandler);
 			},
+
 			applyRenderer: function (renderer) {
 				// dynamic layer stuff
 				var optionsArray = [];
@@ -557,6 +579,7 @@ define([
 				this.parameters.layer.show();
 				this.createLegend();
 			},
+
 			createLegend: function () {
 				var hideLayers = this.parameters.idHideLayers;
 				var layer = this.parameters.layer;
@@ -586,6 +609,7 @@ define([
 				this.createReestablishButton();
 				this.showHideLegend(true);
 			},
+
 			createReestablishButton: function () {
 				if (!this.btnReload) {
 					htmlF = "<button id='btnReload' type='button' class='col-1-3'></button>";
@@ -607,9 +631,11 @@ define([
 					this.createReestablishButton();
 				}
 			},
+
 			errorHandler: function (err) {
 				console.log("error: ", JSON.stringify(err));
 			},
+
 			showHideLegend: function (value) {
 				/*switch between display or not of legend*/
 				if (value) {
@@ -620,6 +646,7 @@ define([
 					domStyle.set(node, 'display', 'none');
 				}
 			},
+
 			uniqueValRender: function () {
 				var randomColor;
 				console.info(this.parameters.field);
@@ -647,6 +674,7 @@ define([
 				this.parameters.layer.show();
 				this.createLegend();
 			},
+
 			createSymbol: function () {
 				/*create default symbol for render depending chosen layer*/
 				if (this.parameters.geometryType == 'esriGeometryPolyline') {
